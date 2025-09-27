@@ -21,7 +21,7 @@ When you open a Python file with security issues:
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/your-username/bob-security.git
-   cd ai-security-linter
+   cd bob-security
    ```
 
 2. **Install Node.js dependencies:**
