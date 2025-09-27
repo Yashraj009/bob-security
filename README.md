@@ -77,7 +77,7 @@ If you have the packaged `.vsix` file:
 
 ```bash
 # Install the extension
-code --install-extension ai-security-linter-1.0.0.vsix
+code --install-extension bob-security-1.0.0.vsix
 
 # Or through VS Code UI:
 # Ctrl+Shift+P → Extensions: Install from VSIX → Select the .vsix file
@@ -86,7 +86,7 @@ code --install-extension ai-security-linter-1.0.0.vsix
 ## 🏗️ Project Structure
 
 ```
-ai-security-linter/
+bob-security/
 ├── 📄 package.json              # Extension configuration
 ├── 📄 tsconfig.json             # TypeScript config
 ├── 📄 README.md                 # This file
