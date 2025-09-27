@@ -1,146 +1,3 @@
-// // In src/extension.ts
-// import * as vscode from "vscode";
-// import { SecurityScanner } from "./securityScanner";
-// import {
-//   setGroqApiKeyCommand,
-//   getAiFix,
-//   getAiAnalysis,
-//   extractCodeContext,
-//   AiFixResponse,
-// } from "./aiFixer";
-// import { AnalysisPanel } from "./analysisPanel"; // Import the new panel
-
-// export function activate(context: vscode.ExtensionContext) {
-//   // ... (setup for diagnostics, scanner, and setApiKeyCommand remains the same) ...
-//   console.log("AI Security Linter is now active!");
-
-//   const diagnostics =
-//     vscode.languages.createDiagnosticCollection("securityLinter");
-//   context.subscriptions.push(diagnostics);
-
-//   const scanner = new SecurityScanner(diagnostics);
-//   context.subscriptions.push(setGroqApiKeyCommand(context.secrets));
-
-//   // --- UPDATED "Fix with AI" COMMAND ---
-//   context.subscriptions.push(
-//     vscode.commands.registerCommand("bob-security.fixWithAI", async () => {
-//       const editor = vscode.window.activeTextEditor;
-//       if (!editor) {
-//         return;
-//       }
-
-//       const uri = editor.document.uri;
-//       const fileDiagnostics = diagnostics.get(uri);
-//       if (!fileDiagnostics || fileDiagnostics.length === 0) {
-//         return;
-//       }
-
-//       const firstDiagnostic = fileDiagnostics[0];
-//       const fullText = editor.document.getText();
-
-//       // Get the structured fix from the AI
-//       const aiFix: AiFixResponse | null = await getAiFix(
-//         fullText,
-//         firstDiagnostic,
-//         context.secrets
-//       );
-
-//       if (aiFix && aiFix.code_to_replace) {
-//         const edit = new vscode.WorkspaceEdit();
-
-//         // 1. Replace the old function with the new one
-//         // We use the diagnostic's range, which Semgrep provides for the function
-//         edit.replace(uri, firstDiagnostic.range, aiFix.code_to_replace);
-
-//         // 2. Add the new imports, if any
-//         if (aiFix.imports_to_add && aiFix.imports_to_add.length > 0) {
-//           const importText = aiFix.imports_to_add.join("\n") + "\n";
-//           // Find the last import in the file to add new ones after it
-//           const lastImportLine = findLastImportLine(editor.document);
-//           const insertPosition = new vscode.Position(lastImportLine + 1, 0);
-//           edit.insert(uri, insertPosition, importText);
-//         }
-
-//         await vscode.workspace.applyEdit(edit);
-//         await editor.document.save();
-//         vscode.window.showInformationMessage("AI fix applied successfully!");
-//       }
-//     })
-//   );
-
-//   // --- NEW "Explain Issue" COMMAND ---
-//   context.subscriptions.push(
-//     vscode.commands.registerCommand("bob-security.explainIssue", async () => {
-//       const editor = vscode.window.activeTextEditor;
-//       if (!editor) {
-//         return;
-//       }
-
-//       const fileDiagnostics = diagnostics.get(editor.document.uri);
-//       if (!fileDiagnostics || fileDiagnostics.length === 0) {
-//         return;
-//       }
-
-//       const firstDiagnostic = fileDiagnostics[0];
-//       const codeContext = extractCodeContext(
-//         editor.document.getText(),
-//         firstDiagnostic.range.start.line
-//       );
-
-//       // 1. Create or show the panel
-//       AnalysisPanel.createOrShow(context.extensionUri);
-//       const panel = AnalysisPanel.currentPanel;
-
-//       if (panel) {
-//         // 2. Show a loading message
-//         panel.update("Analyzing your code with AI...");
-
-//         // 3. Get the analysis and update the panel's content
-//         const analysis = await getAiAnalysis(
-//           codeContext,
-//           firstDiagnostic,
-//           context.secrets
-//         );
-//         if (analysis) {
-//           panel.update(analysis);
-//         }
-//       }
-//     })
-//   );
-
-//   vscode.workspace.onDidOpenTextDocument(
-//     (doc) => scanner.scanFile(doc),
-//     null,
-//     context.subscriptions
-//   );
-//   vscode.workspace.onDidSaveTextDocument(
-//     (doc) => scanner.scanFile(doc),
-//     null,
-//     context.subscriptions
-//   );
-
-//   if (vscode.window.activeTextEditor) {
-//     scanner.scanFile(vscode.window.activeTextEditor.document);
-//   }
-
-//   // We no longer need the Code Actions Provider (the lightbulb)
-//   // You can now safely delete the `src/codeActions.ts` file.
-// }
-
-// // Helper function to find where to insert new imports
-// function findLastImportLine(document: vscode.TextDocument): number {
-//   let lastImportLine = -1;
-//   for (let i = 0; i < document.lineCount; i++) {
-//     const line = document.lineAt(i).text;
-//     if (line.trim().startsWith("import ") || line.trim().startsWith("from ")) {
-//       lastImportLine = i;
-//     }
-//   }
-//   return lastImportLine;
-// }
-
-// export function deactivate() {}
-
 // In src/extension.ts
 import * as vscode from "vscode";
 import * as fs from "fs";
@@ -191,9 +48,7 @@ export function activate(context: vscode.ExtensionContext) {
             "Yes",
             "No"
           );
-          if (overwrite !== "Yes") {
-            return;
-          }
+          if (overwrite !== "Yes") return;
         }
 
         const defaultRules = getDefaultSemgrepRules();
@@ -286,8 +141,26 @@ export function activate(context: vscode.ExtensionContext) {
           if (aiFix && aiFix.code_to_replace) {
             const edit = new vscode.WorkspaceEdit();
 
-            // Replace the problematic code with the fixed version
-            edit.replace(uri, firstDiagnostic.range, aiFix.code_to_replace);
+            // Check if we have function range information
+            const functionRange = (aiFix as any).functionRange;
+
+            let replaceRange: vscode.Range;
+            if (functionRange) {
+              // Use the complete function range including decorators
+              replaceRange = new vscode.Range(
+                new vscode.Position(functionRange.start, 0),
+                new vscode.Position(
+                  functionRange.end,
+                  editor.document.lineAt(functionRange.end).text.length
+                )
+              );
+            } else {
+              // Fallback to the original diagnostic range
+              replaceRange = firstDiagnostic.range;
+            }
+
+            // Replace the complete function with the fixed version
+            edit.replace(uri, replaceRange, aiFix.code_to_replace);
 
             // Add new imports if needed
             if (aiFix.imports_to_add && aiFix.imports_to_add.length > 0) {
@@ -300,12 +173,26 @@ export function activate(context: vscode.ExtensionContext) {
             await vscode.workspace.applyEdit(edit);
             await editor.document.save();
 
-            // Re-scan the file to check if the issue is resolved
-            setTimeout(() => scanner.scanFile(editor.document), 1000);
-
-            vscode.window.showInformationMessage(
-              "AI fix applied successfully!"
-            );
+            // Show explanation if available
+            if (aiFix.explanation) {
+              vscode.window
+                .showInformationMessage(
+                  `AI fix applied: ${aiFix.explanation}`,
+                  "View Changes"
+                )
+                .then((selection) => {
+                  if (selection === "View Changes") {
+                    // Re-scan to show the fix worked
+                    setTimeout(() => scanner.scanFile(editor.document), 1000);
+                  }
+                });
+            } else {
+              vscode.window.showInformationMessage(
+                "AI fix applied successfully!"
+              );
+              // Re-scan to show the fix worked
+              setTimeout(() => scanner.scanFile(editor.document), 1000);
+            }
           } else {
             vscode.window.showErrorMessage(
               "Failed to generate a fix. Please check your API key and try again."
