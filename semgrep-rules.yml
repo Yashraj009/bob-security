@@ -1,0 +1,31 @@
+rules:
+  - id: python-hardcoded-secret
+    patterns:
+      - pattern-either:
+          - pattern: API_KEY = "$SECRET"
+          - pattern: SECRET_KEY = "$SECRET"
+          - pattern: PASSWORD = "$SECRET"
+    message: "Hardcoded secret detected. Use environment variables for sensitive credentials."
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: security
+      cwe: "CWE-798: Use of Hard-coded Credentials"
+
+  - id: flask-missing-authorization
+    patterns:
+      - pattern: |
+          @app.route(...)
+          def $FUNC(...):
+            ...
+      - pattern-not-inside: |
+          @login_required
+          ...
+          @app.route(...)
+          ...
+    message: "This Flask route may be missing an authorization check. Protect sensitive endpoints."
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: security
+      cwe: "CWE-285: Improper Authorization"
