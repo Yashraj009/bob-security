@@ -2,7 +2,7 @@
 
 An intelligent VS Code extension that detects security vulnerabilities in Python code using Semgrep and provides AI-powered fixes and explanations using Groq.
 
-![AI Security Linter Demo](https://img.shields.io/badge/VS%20Code-Extension-blue?logo=visual-studio-code)
+![Bob Securtiy Demo](https://img.shields.io/badge/VS%20Code-Extension-blue?logo=visual-studio-code)
 ![Python](https://img.shields.io/badge/Python-Security-green?logo=python)
 ![AI Powered](https://img.shields.io/badge/AI-Powered-orange?logo=openai)
 
@@ -10,7 +10,7 @@ An intelligent VS Code extension that detects security vulnerabilities in Python
 
 When you open a Python file with security issues:
 1. **Red squiggly lines** appear under vulnerable code
-2. **Notification popup** shows "AI Security Linter found X issues"
+2. **Notification popup** shows "Bob Securtiy found X issues"
 3. Click **"Fix with AI"** → Automatically applies secure code
 4. Click **"Explain Issue"** → Get detailed security analysis
 
@@ -63,7 +63,7 @@ When you open a Python file with security issues:
    - This opens a new VS Code window with your extension loaded
 
 8. **Set up API Key:**
-   - In the new window: `Ctrl+Shift+P` → `AI Security Linter: Set Groq API Key`
+   - In the new window: `Ctrl+Shift+P` → `Bob Securtiy: Set Groq API Key`
    - Paste your API key
 
 9. **Test the extension:**
@@ -136,11 +136,11 @@ The extension automatically scans Python files when you:
 
 ### Manual Commands
 Access via `Ctrl+Shift+P`:
-- `AI Security Linter: Scan Current File`
-- `AI Security Linter: Set Groq API Key`  
-- `AI Security Linter: Create Semgrep Rules File`
-- `AI Security Linter: Fix Security Issue with AI`
-- `AI Security Linter: Explain Security Issue`
+- `Bob Securtiy: Scan Current File`
+- `Bob Securtiy: Set Groq API Key`  
+- `Bob Securtiy: Create Semgrep Rules File`
+- `Bob Securtiy: Fix Security Issue with AI`
+- `Bob Securtiy: Explain Security Issue`
 
 ### When Issues Are Found
 1. **Red squiggly lines** highlight problematic code
@@ -150,7 +150,7 @@ Access via `Ctrl+Shift+P`:
 
 ## ⚙️ Configuration
 
-Access via `File` → `Preferences` → `Settings` → `AI Security Linter`:
+Access via `File` → `Preferences` → `Settings` → `Bob Securtiy`:
 
 ```json
 {
@@ -238,7 +238,7 @@ vsce package
    - Check Console tab for errors
 
 2. **Extension Output:**
-   - `View` → `Output` → Select "AI Security Linter"
+   - `View` → `Output` → Select "Bob Securtiy"
    - See detailed logs and fix history
 
 3. **Test Semgrep manually:**
@@ -263,12 +263,12 @@ conda install -c conda-forge semgrep
 ```
 
 **❌ "API key not set"**
-- Run: `AI Security Linter: Set Groq API Key`
+- Run: `Bob Securtiy: Set Groq API Key`
 - Get free key: https://console.groq.com/keys
 - Ensure key starts with `gsk_`
 
 **❌ "Rules file not found"**
-- Run: `AI Security Linter: Create Semgrep Rules File`
+- Run: `Bob Securtiy: Create Semgrep Rules File`
 - Ensure you have workspace folder open (not single file)
 
 **❌ "Extension not activating"**
@@ -283,7 +283,7 @@ conda install -c conda-forge semgrep
 
 ### Getting Help
 
-1. **Check Logs:** `View` → `Output` → `AI Security Linter`
+1. **Check Logs:** `View` → `Output` → `Bob Securtiy`
 2. **Test Components:**
    ```bash
    # Test Semgrep
